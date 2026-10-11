@@ -16,7 +16,7 @@ var createWorldCreator = function() {
         elevatorCapacities = elevatorCapacities || [4];
         var currentX = 200.0;
         var elevators = _.map(_.range(elevatorCount), function(e, i) {
-            var elevator = new Elevator(2.6, floorCount, floorHeight, elevatorCapacities[i%elevatorCapacities.length]);
+            var elevator = new Elevator(2.6, floorCount, floorHeight, elevatorCapacities[i % elevatorCapacities.length]);
 
             // Move to right x position
             elevator.moveTo(currentX, null);
@@ -43,7 +43,7 @@ var createWorldCreator = function() {
 
     creator.spawnUserRandomly = function(floorCount, floorHeight, floors) {
         var user = creator.createRandomUser();
-        user.moveTo(105+_.random(40), 0);
+        user.moveTo(105 + _.random(40), 0);
         var currentFloor = _.random(1) === 0 ? 0 : _.random(floorCount - 1);
         var destinationFloor;
         if(currentFloor === 0) {
@@ -65,12 +65,12 @@ var createWorldCreator = function() {
         console.log("Creating world with options", options);
         var defaultOptions = { floorHeight: 50, floorCount: 4, elevatorCount: 2, spawnRate: 0.5 };
         options = _.defaults(_.clone(options), defaultOptions);
-        var world = {floorHeight: options.floorHeight, transportedCounter: 0};
+        var world = { floorHeight: options.floorHeight, transportedCounter: 0 };
         riot.observable(world);
 
         var handleUserCodeError = function(e) {
             world.trigger("usercode_error", e);
-        }
+        };
 
         world.floors = creator.createFloors(options.floorCount, world.floorHeight, handleUserCodeError);
         world.elevators = creator.createElevators(options.elevatorCount, options.floorCount, world.floorHeight, options.elevatorCapacities);
@@ -87,7 +87,7 @@ var createWorldCreator = function() {
         var recalculateStats = function() {
             world.transportedPerSec = world.transportedCounter / world.elapsedTime;
             // TODO: Optimize this loop?
-            world.moveCount = _.reduce(world.elevators, function(sum, elevator) { return sum+elevator.moveCount; }, 0);
+            world.moveCount = _.reduce(world.elevators, function(sum, elevator) { return sum + elevator.moveCount; }, 0);
             world.trigger("stats_changed");
         };
 
@@ -109,13 +109,13 @@ var createWorldCreator = function() {
             // Use regular loops for memory/performance reasons
             // Notify floors first because overflowing users
             // will press buttons again.
-            for(var i=0, len=world.floors.length; i<len; ++i) {
+            for(var i = 0, len = world.floors.length; i < len; ++i) {
                 var floor = world.floors[i];
                 if(elevator.currentFloor === i) {
                     floor.elevatorAvailable(elevator);
                 }
             }
-            for(var users=world.users, i=0, len=users.length; i < len; ++i) {
+            for(var users = world.users, i = 0, len = users.length; i < len; ++i) {
                 var user = users[i];
                 if(user.currentFloor === elevator.currentFloor) {
                     user.elevatorAvailable(elevator, world.floors[elevator.currentFloor]);
@@ -124,16 +124,16 @@ var createWorldCreator = function() {
         };
 
         // Bind them all together
-        for(var i=0; i < world.elevators.length; ++i) {
+        for(var i = 0; i < world.elevators.length; ++i) {
             world.elevators[i].on("entrance_available", handleElevAvailability);
         }
 
         var handleButtonRepressing = function(eventName, floor) {
             // Need randomize iteration order or we'll tend to fill upp first elevator
-            for(var i=0, len=world.elevators.length, offset=_.random(len-1); i < len; ++i) {
+            for(var i = 0, len = world.elevators.length, offset = _.random(len - 1); i < len; ++i) {
                 var elevIndex = (i + offset) % len;
                 var elevator = world.elevators[elevIndex];
-                if( eventName === "up_button_pressed" && elevator.goingUpIndicator ||
+                if(eventName === "up_button_pressed" && elevator.goingUpIndicator ||
                     eventName === "down_button_pressed" && elevator.goingDownIndicator) {
 
                     // Elevator is heading in correct direction, check for suitability
@@ -145,15 +145,15 @@ var createWorldCreator = function() {
                     }
                 }
             }
-        }
+        };
 
         // This will cause elevators to "re-arrive" at floors if someone presses an
         // appropriate button on the floor before the elevator has left.
-        for(var i=0; i<world.floors.length; ++i) {
+        for(var i = 0; i < world.floors.length; ++i) {
             world.floors[i].on("up_button_pressed down_button_pressed", handleButtonRepressing);
         };
 
-        var elapsedSinceSpawn = 1.001/options.spawnRate;
+        var elapsedSinceSpawn = 1.001 / options.spawnRate;
         var elapsedSinceStatsUpdate = 0.0;
 
         // Main update function
@@ -161,38 +161,38 @@ var createWorldCreator = function() {
             world.elapsedTime += dt;
             elapsedSinceSpawn += dt;
             elapsedSinceStatsUpdate += dt;
-            while(elapsedSinceSpawn > 1.0/options.spawnRate) {
-                elapsedSinceSpawn -= 1.0/options.spawnRate;
+            while(elapsedSinceSpawn > 1.0 / options.spawnRate) {
+                elapsedSinceSpawn -= 1.0 / options.spawnRate;
                 registerUser(creator.spawnUserRandomly(options.floorCount, world.floorHeight, world.floors));
             }
 
             // Use regular for loops for performance and memory friendlyness
-            for(var i=0, len=world.elevators.length; i < len; ++i) {
+            for(var i = 0, len = world.elevators.length; i < len; ++i) {
                 var e = world.elevators[i];
                 e.update(dt);
                 e.updateElevatorMovement(dt);
             }
-            for(var users=world.users, i=0, len=users.length; i < len; ++i) {
+            for(var users = world.users, i = 0, len = users.length; i < len; ++i) {
                 var u = users[i];
                 u.update(dt);
                 world.maxWaitTime = Math.max(world.maxWaitTime, world.elapsedTime - u.spawnTimestamp);
             };
 
-            for(var users=world.users, i=world.users.length-1; i>=0; i--) {
+            for(var users = world.users, i = world.users.length - 1; i >= 0; i--) {
                 var u = users[i];
                 if(u.removeMe) {
                     users.splice(i, 1);
                 }
             }
-            
+
             recalculateStats();
         };
 
         world.updateDisplayPositions = function() {
-            for(var i=0, len=world.elevators.length; i < len; ++i) {
+            for(var i = 0, len = world.elevators.length; i < len; ++i) {
                 world.elevators[i].updateDisplayPosition();
             }
-            for(var users=world.users, i=0, len=users.length; i < len; ++i) {
+            for(var users = world.users, i = 0, len = users.length; i < len; ++i) {
                 users[i].updateDisplayPosition();
             }
         };
@@ -209,7 +209,7 @@ var createWorldCreator = function() {
 
         world.init = function() {
             // Checking the floor queue of the elevators triggers the idle event here
-            for(var i=0; i < world.elevatorInterfaces.length; ++i) {
+            for(var i = 0; i < world.elevatorInterfaces.length; ++i) {
                 world.elevatorInterfaces[i].checkDestinationQueue();
             }
         };
@@ -220,6 +220,69 @@ var createWorldCreator = function() {
     return creator;
 };
 
+/**
+ * @typedef {Object} Elevator
+ * @property {number[]} destinationQueue - must call destinationQueue is mutated
+ * 
+ * @property {function(number): void} goToFloor
+ * @property {function(): number} currentFloor
+ * @property {function(): number} maxPassengerCount
+ * @property {function(): number} loadFactor
+ * @property {function(): "down" | "up" | "stopped"} destinationDirection
+ * @property {function(): void} stop
+ * @property {function(): void} checkDestinationQueue
+ * @property {function(): number[]} getPressedFloors
+ * 
+ * @property {function(boolean=): void} goingUpIndicator
+ * @property {function(boolean=): void} goingDownIndicator
+ * 
+ * @property {{
+ *   (event: "idle", callback: () => void): void;
+ *   (event: "floor_button_pressed", callback: (floorNum: number) => void): void;
+ *   (event: "passing_floor", callback: (floorNum: number, direction: "up" | "down") => void): void;
+ *   (event: "stopped_at_floor", callback: (floorNum: number) => void): void;
+ * }} on
+ */
+
+/**
+ * @typedef {Object} Floor
+ * @property {function(): number} floorNum
+ * 
+ * @property {function(boolean=): void} goingUpIndicator
+ * @property {function(boolean=): void} goingDownIndicator
+ * 
+ * @property {{
+ *   (event: "up_button_pressed", callback: () => void): void;
+ *   (event: "down_button_pressed", callback: () => void): void;
+ * }} on
+ */
+
+/**
+ * @param {Elevator[]} elevators 
+ * @param {Floor[]} floors 
+ */
+function customInit(elevators, floors) {
+    const flsMax = Math.max(...floors.map((e) => e.floorNum()));
+
+    let floorButtons = Array(flsMax + 1).fill([0, 0]);
+
+    floors.forEach((floor) => {
+        let floorNum = floor.floorNum();
+        floor.on("up_button_pressed", () => {
+            floorButtons[floorNum][0] = 1;
+        });
+        floor.on("down_button_pressed", () => {
+            floorButtons[floorNum][1] = 1;
+        });
+    });
+
+    elevators.forEach((elevator) => {
+        elevator.on("idle", function() {
+            elevator.goToFloor(0);
+            elevator.goToFloor(flsMax);
+        });
+    });
+}
 
 var createWorldController = function(dtMax) {
     var controller = riot.observable({});
@@ -230,13 +293,14 @@ var createWorldController = function(dtMax) {
         var lastT = null;
         var firstUpdate = true;
         world.on("usercode_error", controller.handleUserCodeError);
+        customInit(world.elevatorInterfaces, world.floors);
         var updater = function(t) {
             if(!controller.isPaused && !world.challengeEnded && lastT !== null) {
                 if(firstUpdate) {
                     firstUpdate = false;
                     // This logic prevents infite loops in usercode from breaking the page permanently - don't evaluate user code until game is unpaused.
                     try {
-                        codeObj.init(world.elevatorInterfaces, world.floors);
+                        // codeObj.init(world.elevatorInterfaces, world.floors);
                         world.init();
                     } catch(e) { controller.handleUserCodeError(e); }
                 }

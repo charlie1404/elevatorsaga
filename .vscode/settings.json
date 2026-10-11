@@ -1,0 +1,21 @@
+{
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "js/ts.format.semicolons": "insert",
+    // Spacing Rules
+    "js/ts.format.insertSpaceAfterCommaDelimiter": true,
+    "js/ts.format.insertSpaceBeforeAndAfterBinaryOperators": true,
+    "js/ts.format.insertSpaceAfterConstructor": false,
+    "js/ts.format.insertSpaceAfterKeywordsInControlFlowStatements": false,
+    "js/ts.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
+    "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
+    "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+    "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
+    "js/ts.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
+    "js/ts.format.insertSpaceBeforeFunctionParenthesis": false,
+    "js/ts.format.placeOpenBraceOnNewLineForControlBlocks": false
+}
